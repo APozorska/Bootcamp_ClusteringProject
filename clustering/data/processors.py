@@ -56,7 +56,34 @@ class MSNBCDataProcessor:
         )
         return preprocessor
 
+
+    def filter_sequences(
+        self,
+        sequences: list[list[int]],
+        min_unique_categories: int = 2,
+        min_sequence: int = 3,
+        max_single_category_ratio: float = 0.8,
+    ) -> list[list[int]]:
+        filtered_sequences: list[list[int]] = []
+        for seq in sequences:
+            if len(seq) < min_sequence:
+                continue
+
+            unique_categories = set(seq)
+            if len(unique_categories) < min_unique_categories:
+                continue
+
+            category_counts = Counter(seq)
+            most_common_count = category_counts.most_common(1)[0][1]
+            if most_common_count / len(seq) > max_single_category_ratio:
+                continue
+
+            filtered_sequences.append(seq)
+
+        return filtered_sequences
+
     def preprocess_sequences(self, sequences: list[list[int]]):
+        sequences = self.filter_sequences(sequences)
         feature_vectors = [
             self.create_feature_vector(seq) for seq in sequences
         ]

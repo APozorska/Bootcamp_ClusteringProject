@@ -1,14 +1,13 @@
 import numpy as np
-
+from tqdm import tqdm
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import silhouette_score
-from tensorflow.python.ops.gen_spectral_ops import batch_ifft
 
 
 class WebBehaviorClustering:
-    def __init__(self, n_clusters: int = 8, batch_size: int = 1024, random_state: int = 42):
+    def __init__(self, n_clusters: int = 8, batch_size: int = 128, random_state: int = 42):
         self.n_clusters = n_clusters
         self.batch_size = batch_size
         self.random_state = random_state
@@ -24,7 +23,7 @@ class WebBehaviorClustering:
 
     def find_optimal_n_clusters(self, X: np.array, cluster_range=range(2,18)) -> list[tuple[int, float]]:
         scores: list[tuple[int, float]] = []
-        for n_clusters in cluster_range:
+        for n_clusters in tqdm(cluster_range):
             model = self._create_model(n_clusters)
             labels = model.fit_predict(X)
             score = silhouette_score(X, labels)
